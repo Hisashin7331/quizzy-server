@@ -12,14 +12,12 @@ const { port } = require('./config')
 
 // Routes
 const authRoute = require('./routes/auth')
+const quizesRoute = require('./routes/quizes')
 
 dotenv.config()
 
 // DB Connection
 require('./db/connect')
-
-// Passport config
-// require('./authentication/passport')(passport)
 
 const store = new MongoDBStore({
     uri: process.env.DB_URI,
@@ -50,10 +48,9 @@ app.use(
         saveUninitialized: true,
     }),
 )
-// app.use(passport.initialize())
-// app.use(passport.session())
 
 // Route Middlewares
 app.use('/api/users', authRoute)
+app.use('/api/quizes', quizesRoute)
 
 app.listen(port, () => console.log('running'))
