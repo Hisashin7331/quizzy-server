@@ -12,7 +12,7 @@ const { port } = require('./config')
 
 // Routes
 const authRoute = require('./routes/auth')
-const quizesRoute = require('./routes/quizes')
+const quizzesRoute = require('./routes/quizzes')
 
 dotenv.config()
 
@@ -51,6 +51,6 @@ app.use(
 
 // Route Middlewares
 app.use('/api/users', authRoute)
-app.use('/api/quizes', quizesRoute)
+app.use('/api/quizzes', quizzesRoute)
 
 app.listen(port, () => console.log('running'))

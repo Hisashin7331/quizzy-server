@@ -16,7 +16,7 @@ const createQuizValidation = data => {
                     ),
                 }),
             )
-            .min(4)
+            .min(3)
             .max(16),
     })
     return schema.validate(data)

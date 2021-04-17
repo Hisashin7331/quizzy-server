@@ -1,6 +1,6 @@
 const router = require('express').Router()
 
-const { createQuizValidation } = require('../validation/quizes')
+const { createQuizValidation } = require('../validation/quizzes')
 
 const Quiz = require('../db/models/Quiz')
 
