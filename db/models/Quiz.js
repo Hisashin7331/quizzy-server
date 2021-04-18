@@ -11,13 +11,14 @@ const quizSchema = new mongoose.Schema({
         min: 8,
         max: 64,
     },
-    date: {
-        type: Date,
-        default: Date.now(),
-    },
+    date: {},
     views: {
         type: Number,
         default: 0,
+    },
+    thumbnail: {
+        type: String,
+        required: true,
     },
     data: [
         {

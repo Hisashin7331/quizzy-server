@@ -6,6 +6,10 @@ const cookieParser = require('cookie-parser')
 const session = require('express-session')
 const MongoDBStore = require('connect-mongodb-session')(session)
 const passport = require('passport')
+dotenv.config()
+
+// DB Connection
+require('./db/connect')
 
 // config
 const { port } = require('./config')
@@ -13,11 +17,7 @@ const { port } = require('./config')
 // Routes
 const authRoute = require('./routes/auth')
 const quizzesRoute = require('./routes/quizzes')
-
-dotenv.config()
-
-// DB Connection
-require('./db/connect')
+const imagesRoute = require('./routes/images')
 
 const store = new MongoDBStore({
     uri: process.env.DB_URI,
@@ -52,5 +52,6 @@ app.use(
 // Route Middlewares
 app.use('/api/users', authRoute)
 app.use('/api/quizzes', quizzesRoute)
+app.use('/api/images', imagesRoute)
 
 app.listen(port, () => console.log('running'))

@@ -4,6 +4,7 @@ const createQuizValidation = data => {
     const schema = Joi.object({
         author: Joi.string().required(),
         name: Joi.string().min(8).max(64).required(),
+        thumbnail: Joi.string().required(),
         data: Joi.array()
             .items(
                 Joi.object({

@@ -1,4 +1,5 @@
 const router = require('express').Router()
+const upload = require('../middlewares/upload')
 
 const { createQuizValidation } = require('../validation/quizzes')
 
@@ -26,16 +27,17 @@ router.get('/popularQuizzes', async (req, res) => {
     }
 })
 
-router.post('/createQuiz', (req, res) => {
+router.post('/createQuiz', upload, (req, res) => {
+    const { author, name, data, thumbnail } = req.body
     const { error } = createQuizValidation(req.body)
     if (error) {
         return res.json(error.details[0].message)
     }
 
-    const { author, name, data } = req.body
     const quiz = new Quiz({
         author,
         name,
+        thumbnail,
         data,
     })
     quiz.save()
