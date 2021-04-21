@@ -1,5 +1,5 @@
 const multer = require('multer')
-const { uuid } = require('uuidv4')
+const { v4: uuidv4 } = require('uuid')
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -8,7 +8,7 @@ const storage = multer.diskStorage({
     filename: (req, file, cb) => {
         const splittedFile = file.originalname.split('.')
         const extenstion = splittedFile[splittedFile.length - 1]
-        cb(null, `${uuid()}.${extenstion}`)
+        cb(null, `${uuidv4()}.${extenstion}`)
     },
 })
 
