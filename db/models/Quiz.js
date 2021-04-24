@@ -11,7 +11,10 @@ const quizSchema = new mongoose.Schema({
         min: 8,
         max: 64,
     },
-    date: {},
+    date: {
+        type: String,
+        default: new Date().toISOString(),
+    },
     views: {
         type: Number,
         default: 0,
@@ -20,6 +23,7 @@ const quizSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    categories: [String],
     data: [
         {
             question: {

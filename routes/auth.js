@@ -12,22 +12,32 @@ const User = require('../db/models/User')
 
 router.post('/register', async (req, res, next) => {
     const { error } = registerValidation(req.body)
-    if (error) return res.json(error.details[0].message)
+    if (error) return res.json({ warning: error.details[0].message })
 
-    const { username, password, repeatPassword } = req.body
+    const {
+        email,
+        username,
+        password,
+        avatar,
+        preferences,
+    } = req.body
 
-    const userExist = await User.findOne({ username })
-    if (userExist) {
+    const usernameExist = await User.findOne({ username })
+    const emailExist = await User.findOne({ email })
+    if (usernameExist || emailExist) {
         return res.json({
-            message: 'User already exists',
+            warning: 'User already exists',
         })
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
     const user = new User({
+        email,
         username,
         password: hashedPassword,
+        avatar,
+        preferences,
     })
 
     user.save()
@@ -38,21 +48,21 @@ router.post('/register', async (req, res, next) => {
             })
         })
         .catch(err => {
-            res.json(err)
+            res.json({ error: 'Unexpected server error' })
         })
 })
 
 router.post('/login', async (req, res, next) => {
     const { error } = loginValidation(req.body)
-    if (error) return res.json(error.details[0].message)
+    if (error) return res.json({ warning: error.details[0].message })
 
-    const { username, password } = req.body
+    const { email, password } = req.body
 
-    User.findOne({ username })
+    User.findOne({ email })
         .then(user => {
             if (!user)
                 return res.json({
-                    message: 'Incorrect username or password',
+                    warning: 'Incorrect email or password',
                 })
             bcrypt.compare(
                 password,
@@ -63,29 +73,25 @@ router.post('/login', async (req, res, next) => {
                         const token = jwt.sign(
                             {
                                 _id: user._id,
-                                username: user.username,
                             },
                             process.env.JWT_SECRET,
                         )
                         return res.header('auth-token', token).json({
                             token,
                             username: user.username,
+                            email: user.email,
+                            avatar: user.avatar,
+                            preferences: user.preferences,
                         })
                     } else {
                         return res.json({
-                            message: 'Incorrect username or password',
+                            warning: 'Incorrect username or password',
                         })
                     }
                 },
             )
         })
-        .catch(err => console.log(err))
-
-    // passport.authenticate('local')(req, res, next)
-})
-
-router.post('/logout', (req, res) => {
-    req.logout()
+        .catch(err => res.json({ error: 'Unexpected server error' }))
 })
 
 module.exports = router

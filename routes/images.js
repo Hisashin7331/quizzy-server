@@ -2,9 +2,9 @@ const router = require('express').Router()
 const upload = require('../middlewares/upload')
 const path = require('path')
 
-router.get('/thumbnail', (req, res) => {
-    const { thumbnail } = req.query
-    res.sendFile(path.resolve(`public/images/${thumbnail}`))
+router.get('/', (req, res) => {
+    const { image } = req.query
+    res.sendFile(path.resolve(`public/images/${image}`))
 })
 
 router.post('/upload', upload, (req, res) => {

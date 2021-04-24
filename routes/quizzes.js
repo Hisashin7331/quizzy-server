@@ -8,22 +8,22 @@ const Quiz = require('../db/models/Quiz')
 router.get('/recentQuizzes', async (req, res) => {
     const { skip, limit } = req.query
     if (skip >= 0 && limit >= 0) {
-        const quizes = await Quiz.find({})
+        const quizzes = await Quiz.find({})
             .sort({ date: -1 })
             .skip(parseInt(skip))
             .limit(parseInt(limit))
-        res.json(quizes)
+        res.json(quizzes)
     }
 })
 
 router.get('/popularQuizzes', async (req, res) => {
     const { skip, limit } = req.query
     if (skip >= 0 && limit >= 0) {
-        const quizes = await Quiz.find({})
+        const quizzes = await Quiz.find({})
             .sort({ views: -1 })
             .skip(parseInt(skip))
             .limit(parseInt(limit))
-        res.json(quizes)
+        res.json(quizzes)
     }
 })
 
@@ -31,7 +31,7 @@ router.post('/createQuiz', upload, (req, res) => {
     const { author, name, data, thumbnail } = req.body
     const { error } = createQuizValidation(req.body)
     if (error) {
-        return res.json(error.details[0].message)
+        return res.json({ warning: error.details[0].message })
     }
 
     const quiz = new Quiz({
@@ -41,8 +41,8 @@ router.post('/createQuiz', upload, (req, res) => {
         data,
     })
     quiz.save()
-        .then(data => res.json(data))
-        .catch(err => res.json(err))
+        .then(data => res.json({ message: 'Quiz has been created' }))
+        .catch(err => res.json({ error: 'Unexpected server error' }))
 })
 
 module.exports = router

@@ -5,6 +5,7 @@ const createQuizValidation = data => {
         author: Joi.string().required(),
         name: Joi.string().min(8).max(64).required(),
         thumbnail: Joi.string().required(),
+        categories: Joi.array().items(Joi.string().min(2)).required(),
         data: Joi.array()
             .items(
                 Joi.object({
