@@ -45,4 +45,24 @@ router.post('/createQuiz', upload, (req, res) => {
         .catch(err => res.json({ error: 'Unexpected server error' }))
 })
 
+router.get('/getQuiz', (req, res) => {
+    const { id } = req.query
+    Quiz.findById(id)
+        .then(data => {
+            if (!data) {
+                res.json({ error: 'Quiz not found' })
+                return
+            }
+            res.json(data)
+        })
+        .catch(() => {
+            res.json({ error: 'Unexpected server error' })
+        })
+})
+
+router.put('/incrementViews', (req, res) => {
+    const { id } = req.body
+    Quiz.findByIdAndUpdate(id, { $inc: { views: 1 } })
+})
+
 module.exports = router

@@ -76,12 +76,18 @@ router.post('/login', async (req, res, next) => {
                             },
                             process.env.JWT_SECRET,
                         )
+                        const {
+                            avatar,
+                            email,
+                            preferences,
+                            username,
+                        } = user
                         return res.header('auth-token', token).json({
                             token,
-                            username: user.username,
-                            email: user.email,
-                            avatar: user.avatar,
-                            preferences: user.preferences,
+                            avatar,
+                            email,
+                            preferences,
+                            username,
                         })
                     } else {
                         return res.json({
