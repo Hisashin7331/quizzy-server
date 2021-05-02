@@ -1,14 +1,14 @@
 const jwt = require('jsonwebtoken')
 
-const auth = async (req, res, next) => {
+const getPreferences = async (req, res, next) => {
     const token = req.headers.auth.split(' ')[1]
     if (token) {
         const decodedData = jwt.verify(token, process.env.JWT_SECRET)
-        req.userID = decodedData?._id
+        req.preferences = decodedData?.preferences
         next()
     } else {
-        return res.json('You must be logged in to upload quizzes')
+        return res.json('You must be logged in to to it')
     }
 }
 
-module.exports = auth
+module.exports = getPreferences

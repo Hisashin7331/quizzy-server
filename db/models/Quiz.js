@@ -23,7 +23,10 @@ const quizSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    categories: [String],
+    category: {
+        type: String,
+        required: true,
+    },
     data: [
         {
             question: {

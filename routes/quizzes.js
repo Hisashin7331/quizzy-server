@@ -1,9 +1,12 @@
 const router = require('express').Router()
 const upload = require('../middlewares/upload')
+const auth = require('../middlewares/auth')
+const getPreferences = require('../middlewares/getPreferences')
 
 const { createQuizValidation } = require('../validation/quizzes')
 
 const Quiz = require('../db/models/Quiz')
+const User = require('../db/models/User')
 
 router.get('/recentQuizzes', async (req, res) => {
     const { skip, limit } = req.query
@@ -12,7 +15,14 @@ router.get('/recentQuizzes', async (req, res) => {
             .sort({ date: -1 })
             .skip(parseInt(skip))
             .limit(parseInt(limit))
-        res.json(quizzes)
+        const modifiedQuizzes = await Promise.all(
+            quizzes.map(async item => {
+                const { username } = await User.findById(item.author)
+                item.author = username
+                return item
+            }),
+        )
+        res.json(modifiedQuizzes)
     }
 })
 
@@ -23,29 +33,56 @@ router.get('/popularQuizzes', async (req, res) => {
             .sort({ views: -1 })
             .skip(parseInt(skip))
             .limit(parseInt(limit))
-        res.json(quizzes)
+        const modifiedQuizzes = await Promise.all(
+            quizzes.map(async item => {
+                const { username } = await User.findById(item.author)
+                item.author = username
+                return item
+            }),
+        )
+        res.json(modifiedQuizzes)
     }
 })
 
-router.post('/createQuiz', upload, (req, res) => {
-    const { author, name, data, thumbnail } = req.body
+router.get('/forYou', getPreferences, async (req, res) => {
+    const { skip, limit } = req.query
+    if (skip >= 0 && limit >= 0) {
+        const quizzes = await Quiz.find({
+            category: { $in: req.preferences },
+        })
+            .skip(parseInt(skip))
+            .limit(parseInt(limit))
+        const modifiedQuizzes = await Promise.all(
+            quizzes.map(async item => {
+                const { username } = await User.findById(item.author)
+                item.author = username
+                return item
+            }),
+        )
+        res.json(modifiedQuizzes)
+    }
+})
+
+router.post('/createQuiz', upload, auth, (req, res) => {
+    const { name, data, thumbnail, category } = req.body
     const { error } = createQuizValidation(req.body)
     if (error) {
         return res.json({ warning: error.details[0].message })
     }
 
     const quiz = new Quiz({
-        author,
+        author: req.userID,
         name,
         thumbnail,
         data,
+        category,
     })
     quiz.save()
         .then(data => res.json({ message: 'Quiz has been created' }))
         .catch(err => res.json({ error: 'Unexpected server error' }))
 })
 
-router.get('/getQuiz', (req, res) => {
+router.get('/getQuiz', async (req, res) => {
     const { id } = req.query
     Quiz.findById(id)
         .then(data => {
@@ -53,7 +90,14 @@ router.get('/getQuiz', (req, res) => {
                 res.json({ error: 'Quiz not found' })
                 return
             }
-            res.json(data)
+            const modifiedQuiz = data
+            User.findById(data.author).then(result => {
+                modifiedQuiz.data.forEach(item => {
+                    item.answers.sort(() => Math.random() - 0.5)
+                })
+                modifiedQuiz.author = result.username
+                res.json(modifiedQuiz)
+            })
         })
         .catch(() => {
             res.json({ error: 'Unexpected server error' })
