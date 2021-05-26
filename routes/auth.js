@@ -2,6 +2,7 @@ const router = require('express').Router()
 const bcrypt = require('bcrypt')
 const passport = require('passport')
 const jwt = require('jsonwebtoken')
+const auth = require('../middlewares/auth')
 
 const {
     registerValidation,
@@ -9,18 +10,14 @@ const {
 } = require('../validation/auth')
 
 const User = require('../db/models/User')
+const Quiz = require('../db/models/Quiz')
 
 router.post('/register', async (req, res, next) => {
     const { error } = registerValidation(req.body)
     if (error) return res.json({ warning: error.details[0].message })
 
-    const {
-        email,
-        username,
-        password,
-        avatar,
-        preferences,
-    } = req.body
+    const { email, username, password, avatar, preferences } =
+        req.body
 
     const usernameExist = await User.findOne({ username })
     const emailExist = await User.findOne({ email })
@@ -98,6 +95,53 @@ router.post('/login', async (req, res, next) => {
             )
         })
         .catch(err => res.json({ error: 'Unexpected server error' }))
+})
+
+router.get('/getUserQuizzes', auth, async (req, res) => {
+    Quiz.find({
+        author: req.userID,
+    })
+        .then(data => {
+            res.json(data)
+        })
+        .catch(error => {
+            res.json({ error: 'Server error' })
+        })
+})
+
+router.get('/getViews', auth, async (req, res) => {
+    Quiz.find({
+        author: req.userID,
+    })
+        .then(data => {
+            let views = 0
+            data.forEach(item => {
+                views += item.views
+            })
+            res.json(views)
+        })
+        .catch(error => {
+            res.json({ error: 'Server error' })
+        })
+})
+
+router.put('/update', auth, async (req, res) => {
+    const { email, username, password } = req.body
+    let hashedPassword = undefined
+    if (password) {
+        hashedPassword = await bcrypt.hash(password, 10)
+    }
+    User.findById(req.userID).then(doc => {
+        doc.email = email || doc.email
+        doc.username = username || doc.username
+        doc.password = hashedPassword || doc.password
+        doc.save((error, response) => {
+            res.json({
+                email: response.email,
+                username: response.username,
+            })
+        })
+    })
 })
 
 module.exports = router

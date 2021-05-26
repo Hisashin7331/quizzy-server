@@ -182,4 +182,33 @@ router.get('/search', (req, res) => {
         .catch(() => res.json({ error: 'Unexpected server error' }))
 })
 
+router.get('/category', async (req, res) => {
+    const { category, skip, limit } = req.query
+    const quizzes = await Quiz.find({ category })
+        .skip(skip && parseInt(skip))
+        .limit(limit && parseInt(limit))
+    const modifiedQuizzes = await Promise.all(
+        quizzes.map(async item => {
+            const { username } = await User.findById(item.author)
+            item.author = username
+            return item
+        }),
+    )
+    res.json(modifiedQuizzes)
+})
+
+router.delete('/delete', auth, (req, res) => {
+    console.log(req.body.id, req.userID)
+    Quiz.findOneAndDelete({
+        _id: req.body.id,
+        author: req.userID,
+    })
+        .then(() => {
+            res.json({ message: 'Quiz has been deleted' })
+        })
+        .catch(() => {
+            res.json({ error: 'Unexpected server error' })
+        })
+})
+
 module.exports = router
