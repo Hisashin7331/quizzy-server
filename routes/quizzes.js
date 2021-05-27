@@ -107,7 +107,7 @@ router.get('/getQuiz', async (req, res) => {
 router.put('/incrementViews', (req, res) => {
     const { id } = req.body
     Quiz.findByIdAndUpdate(id, { $inc: { views: 1 } }).then(() => {
-        return
+        res.send('Complete')
     })
 })
 

@@ -54,4 +54,8 @@ app.use('/api/users', authRoute)
 app.use('/api/quizzes', quizzesRoute)
 app.use('/api/images', imagesRoute)
 
-app.listen(port, () => console.log('app running'))
+app.get('/', (req, res) => {
+    res.send('Quizzy server')
+})
+
+app.listen(port, () => console.log('app is running'))
