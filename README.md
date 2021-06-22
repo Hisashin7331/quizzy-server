@@ -1,7 +1,7 @@
 # quizzy-server
 
 ## Description
-Backend server for Quizzy app, MERN stack CRUD app to createing and taking quizzes, create an account and try it by yourself
+Backend server for Quizzy app, MERN stack CRUD app for creating and taking quizzes, create an account and try it by yourself
 
 ## Live
 ### [See how the backend works live](https://quizzy-client.herokuapp.com/browse)
